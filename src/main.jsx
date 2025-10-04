@@ -1,4 +1,8 @@
+
 import React from "react";
+
+import { StrictMode } from 'react';
+
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 
@@ -14,7 +18,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <App />
       </AuthProvider>
     </BrowserRouter>
-  </React.StrictMode>
+  </React.StrictMode>,
 );
 
 // import App from "./App.jsx";
