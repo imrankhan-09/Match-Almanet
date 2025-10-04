@@ -2,7 +2,7 @@ import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Header from "./components/layout/Header.jsx";
 import Footer from "./components/layout/Footer.jsx";
-import MeshHome from "./components/home/MatchHome.jsx";
+import MeshHome from "./components/Home/MatchHome.jsx";
 import Login from "./components/pages/auth/Login.jsx";
 import Register from "./components/pages/auth/Register.jsx";
 import ProfileForm from "./components/profile/ProfileForm.jsx";
