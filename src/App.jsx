@@ -1,53 +1,38 @@
-import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
-import Header from "./components/layout/Header.jsx";
-import Footer from "./components/layout/Footer.jsx";
-import MeshHome from "./components/home/MatchHome.jsx";
-import Login from "./components/pages/auth/Login.jsx";
-import Register from "./components/pages/auth/Register.jsx";
-import ProfileForm from "./components/profile/ProfileForm.jsx";
-import './App.css';
-// import "./index.css";
+import React from 'react'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import { AuthProvider, useAuth } from './context/AuthProvider'
+import Home from './pages/Home'
+import Login from './pages/Login'
+import Register from './pages/Register'
+import ProfilePage from './pages/ProfilePage'
 
-import { useAuth } from "./components/context/AuthProvider.jsx";
 
 function PrivateRoute({ children }) {
-  const { user } = useAuth();
-  return user ? children : <Navigate to="/login" replace />;
+const { user } = useAuth()
+if (!user) return <Navigate to="/login" replace />
+return children
 }
+
 
 export default function App() {
-  return (
-    <div className="app-root min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1">
-        <Routes>
-          <Route path="/" element={<MeshHome />} />
-          <Route path="/login" element={<Login/>} />
-          <Route path="/register" element={<Register />} />
-
-          <Route
-            path="/profile"
-            element={
-              <PrivateRoute>
-                <ProfileForm />
-              </PrivateRoute>
-            }
-          />
-
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </main>
-      <Footer />
-    </div>
-  );
+return (
+<AuthProvider>
+<Routes>
+<Route path="/" element={<Home />} />
+<Route path="/login" element={<Login />} />
+<Route path="/register" element={<Register />} />
+<Route
+path="/profile"
+element={
+<PrivateRoute>
+<ProfilePage />
+</PrivateRoute>
 }
-
-
-
-
-
-
+/>
+</Routes>
+</AuthProvider>
+)
+}
 
 
 
