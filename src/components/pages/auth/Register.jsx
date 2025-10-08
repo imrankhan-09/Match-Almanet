@@ -1,51 +1,155 @@
 /* src/pages/Register.jsx */
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthProvider'
-
+import React, { useState } from "react";
+import { useAuth } from "../../context/AuthProvider";
+import { useNavigate, Link } from "react-router-dom";
 
 export default function Register() {
-const { register } = useAuth()
-const navigate = useNavigate()
-const [email, setEmail] = useState('')
-const [password, setPassword] = useState('')
-const [err, setErr] = useState('')
+  const { register, setUser } = useAuth(); // setUser hook add karein taake user context update ho
+  const navigate = useNavigate();
 
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    profession: "",
+    interest: "",
+    status: "Single",
+  });
 
-async function submit(e) {
-e.preventDefault()
-setErr('')
-try {
-await register(email, password)
-navigate('/profile')
-} catch (err) {
-setErr(err.message || 'Register failed')
+  const [error, setError] = useState("");
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const { email, password } = formData;
+    const registeredUser = register(email, password); // register function backend / context se
+
+    if (registeredUser) {
+      setUser({ ...registeredUser, profile: null }); // context me user set karein
+      navigate("/dashboard"); // ab dashboard redirect
+    } else {
+      setError("User already exists");
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <div className="max-w-md w-full bg-white p-8 rounded shadow">
+        <h2 className="text-2xl font-semibold mb-6 text-center text-indigo-700">
+          Create Your Account
+        </h2>
+
+        {error && <div className="text-red-500 mb-4 text-center">{error}</div>}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Full Name */}
+          <div>
+            <label className="block text-sm text-gray-600">Full Name</label>
+            <input
+              type="text"
+              name="fullName"
+              value={formData.fullName}
+              onChange={handleChange}
+              placeholder="Enter your full name"
+              required
+              className="block w-full mt-1 p-2 border rounded focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="block text-sm text-gray-600">Email</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Enter your email"
+              required
+              className="block w-full mt-1 p-2 border rounded focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+
+          {/* Password */}
+          <div>
+            <label className="block text-sm text-gray-600">Password</label>
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Enter a strong password"
+              required
+              className="block w-full mt-1 p-2 border rounded focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+
+          {/* Profession */}
+          <div>
+            <label className="block text-sm text-gray-600">Profession</label>
+            <input
+              type="text"
+              name="profession"
+              value={formData.profession}
+              onChange={handleChange}
+              placeholder="E.g. Software Engineer, Doctor, Teacher..."
+              className="block w-full mt-1 p-2 border rounded focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+
+          {/* Interest */}
+          <div>
+            <label className="block text-sm text-gray-600">Interests</label>
+            <input
+              type="text"
+              name="interest"
+              value={formData.interest}
+              onChange={handleChange}
+              placeholder="E.g. Coding, Reading, Travelling..."
+              className="block w-full mt-1 p-2 border rounded focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+
+          {/* Marital Status Dropdown */}
+          <div>
+            <label className="block text-sm text-gray-600">Marital Status</label>
+            <select
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              className="block w-full mt-1 p-2 border rounded focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="Single">Single</option>
+              <option value="Married">Married</option>
+              <option value="Divorced">Divorced</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            className="w-full px-4 py-2 bg-indigo-600 text-white rounded mt-4 hover:bg-indigo-700 transition"
+          >
+            Register
+          </button>
+        </form>
+
+        <p className="text-sm text-gray-600 mt-4 text-center">
+          Already have an account?{" "}
+          <Link to="/login" className="text-indigo-600 hover:underline">
+            Login
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
 }
-}
-
-
-return (
-<div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-<div className="max-w-md w-full bg-white p-6 rounded shadow">
-<h2 className="text-xl font-semibold mb-4">Register</h2>
-{err && <div className="mb-3 text-sm text-red-700 bg-red-50 p-2 rounded">{err}</div>}
-<form onSubmit={submit} className="space-y-3">
-<div>
-<label className="text-sm text-gray-600">Email</label>
-<input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} className="block w-full mt-1 p-2 border rounded" required />
-</div>
-<div>
-<label className="text-sm text-gray-600">Password</label>
-<input type="password" value={password} onChange={(e)=>setPassword(e.target.value)} className="block w-full mt-1 p-2 border rounded" required />
-</div>
-<div className="flex gap-2">
-<button type="submit" className="px-4 py-2 bg-green-600 text-white rounded">Register</button>
-</div>
-</form>
-</div>
-</div>
-)
-}
 
 
 
@@ -75,115 +179,149 @@ return (
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// /* src/pages/Register.jsx */
 // import React, { useState } from "react";
-// import { Link } from "react-router-dom";
-// import { useAuth } from "../../context/AuthProvider.jsx";
+// import { useAuth } from "../../context/AuthProvider";
+// import { useNavigate, Link } from "react-router-dom";
 
 // export default function Register() {
 //   const { register } = useAuth();
-//   const [name, setName] = useState("");
-//   const [email, setEmail] = useState("");
-//   const [password, setPassword] = useState("");
-//   const [busy, setBusy] = useState(false);
+//   const navigate = useNavigate();
+
+//   const [formData, setFormData] = useState({
+//     fullName: "",
+//     email: "",
+//     password: "",
+//     profession: "",
+//     interest: "",
+//     status: "Single",
+//   });
+
 //   const [error, setError] = useState("");
 
-//   const handleSubmit = async (e) => {
+//   const handleChange = (e) => {
+//     const { name, value } = e.target;
+//     setFormData((prev) => ({ ...prev, [name]: value }));
+//   };
+
+//   const handleSubmit = (e) => {
 //     e.preventDefault();
-//     setError("");
-//     setBusy(true);
-//     try {
-//       await register(name, email, password);
-//     } catch (err) {
-//       setError(err.message || "Registration failed");
-//     } finally {
-//       setBusy(false);
+
+//     const { email, password } = formData;
+//     if (register(email, password)) {
+//       navigate("/create-profile");
+//     } else {
+//       setError("User already exists");
 //     }
 //   };
 
 //   return (
-//     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-white px-4">
-//       <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
-//         <h2 className="text-3xl font-bold text-center text-blue-600 mb-6">
-//           Register
+//     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+//       <div className="max-w-md w-full bg-white p-8 rounded shadow">
+//         <h2 className="text-2xl font-semibold mb-6 text-center text-indigo-700">
+//           Create Your Account
 //         </h2>
 
-//         {error && (
-//           <div className="mb-4 text-center text-red-600 text-sm">{error}</div>
-//         )}
+//         {error && <div className="text-red-500 mb-4 text-center">{error}</div>}
 
 //         <form onSubmit={handleSubmit} className="space-y-4">
+//           {/* Full Name */}
 //           <div>
-//             <label className="block text-sm font-medium mb-1">Name</label>
+//             <label className="block text-sm text-gray-600">Full Name</label>
 //             <input
 //               type="text"
-//               value={name}
-//               onChange={(e) => setName(e.target.value)}
-//               className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-//               placeholder="Enter your name"
+//               name="fullName"
+//               value={formData.fullName}
+//               onChange={handleChange}
+//               placeholder="Enter your full name"
 //               required
+//               className="block w-full mt-1 p-2 border rounded focus:ring-indigo-500 focus:border-indigo-500"
 //             />
 //           </div>
 
+//           {/* Email */}
 //           <div>
-//             <label className="block text-sm font-medium mb-1">Email</label>
+//             <label className="block text-sm text-gray-600">Email</label>
 //             <input
 //               type="email"
-//               value={email}
-//               onChange={(e) => setEmail(e.target.value)}
-//               className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+//               name="email"
+//               value={formData.email}
+//               onChange={handleChange}
 //               placeholder="Enter your email"
 //               required
+//               className="block w-full mt-1 p-2 border rounded focus:ring-indigo-500 focus:border-indigo-500"
 //             />
 //           </div>
 
+//           {/* Password */}
 //           <div>
-//             <label className="block text-sm font-medium mb-1">Password</label>
+//             <label className="block text-sm text-gray-600">Password</label>
 //             <input
 //               type="password"
-//               value={password}
-//               onChange={(e) => setPassword(e.target.value)}
-//               className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-//               placeholder="Enter your password"
+//               name="password"
+//               value={formData.password}
+//               onChange={handleChange}
+//               placeholder="Enter a strong password"
 //               required
+//               className="block w-full mt-1 p-2 border rounded focus:ring-indigo-500 focus:border-indigo-500"
 //             />
 //           </div>
 
+//           {/* Profession */}
+//           <div>
+//             <label className="block text-sm text-gray-600">Profession</label>
+//             <input
+//               type="text"
+//               name="profession"
+//               value={formData.profession}
+//               onChange={handleChange}
+//               placeholder="E.g. Software Engineer, Doctor, Teacher..."
+//               className="block w-full mt-1 p-2 border rounded focus:ring-indigo-500 focus:border-indigo-500"
+//             />
+//           </div>
+
+//           {/* Interest */}
+//           <div>
+//             <label className="block text-sm text-gray-600">Interests</label>
+//             <input
+//               type="text"
+//               name="interest"
+//               value={formData.interest}
+//               onChange={handleChange}
+//               placeholder="E.g. Coding, Reading, Travelling..."
+//               className="block w-full mt-1 p-2 border rounded focus:ring-indigo-500 focus:border-indigo-500"
+//             />
+//           </div>
+
+//           {/* Marital Status Dropdown */}
+//           <div>
+//             <label className="block text-sm text-gray-600">Marital Status</label>
+//             <select
+//               name="status"
+//               value={formData.status}
+//               onChange={handleChange}
+//               className="block w-full mt-1 p-2 border rounded focus:ring-indigo-500 focus:border-indigo-500"
+//             >
+//               <option value="Single">Single</option>
+//               <option value="Married">Married</option>
+//               <option value="Divorced">Divorced</option>
+//               <option value="Other">Other</option>
+//             </select>
+//           </div>
+
+//           {/* Submit Button */}
 //           <button
 //             type="submit"
-//             disabled={busy}
-//             className="w-full py-3 bg-blue-600 hover:bg-blue-700 transition text-white rounded-lg shadow-md font-medium"
+//             className="w-full px-4 py-2 bg-indigo-600 text-white rounded mt-4 hover:bg-indigo-700 transition"
 //           >
-//             {busy ? "Registering..." : "Register"}
+//             Register
 //           </button>
 //         </form>
 
-//         <p className="text-center text-sm text-gray-600 mt-6">
+//         <p className="text-sm text-gray-600 mt-4 text-center">
 //           Already have an account?{" "}
-//           <Link
-//             to="/login"
-//             className="text-blue-600 font-medium hover:underline"
-//           >
-//             Login here
+//           <Link to="/login" className="text-indigo-600 hover:underline">
+//             Login
 //           </Link>
 //         </p>
 //       </div>

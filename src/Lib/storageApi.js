@@ -1,55 +1,43 @@
 /* src/lib/storageApi.js */
-// Abstraction layer: currently localStorage-based. Later replace with axios calls to your Node API.
-const USERS_KEY = 'mm_users'
-const PROFILES_KEY = 'mm_profiles'
-const SESSION_KEY = 'mm_session_email'
+const USERS_KEY = "mm_users";
+const PROFILES_KEY = "mm_profiles";
 
+const storageApi = {
+  register(email, password) {
+    const users = JSON.parse(localStorage.getItem(USERS_KEY) || "{}");
+    if (users[email]) return false; // user exists
+    users[email] = { email, password };
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+    return true;
+  },
 
-function readJSON(key, fallback = {}) {
-try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback }
-catch { return fallback }
-}
-function writeJSON(key, val) { localStorage.setItem(key, JSON.stringify(val)) }
+  login(email, password) {
+    const users = JSON.parse(localStorage.getItem(USERS_KEY) || "{}");
+    if (users[email] && users[email].password === password) {
+      localStorage.setItem("mm_session_email", email);
+      return true;
+    }
+    return false;
+  },
 
-export default {
-// session helpers
-getSession() {
-const email = localStorage.getItem(SESSION_KEY)
-if (!email) return null
-// return minimal user object; in future this can include token
-return { email }
-},
-logout() { localStorage.removeItem(SESSION_KEY) },
+  logout() {
+    localStorage.removeItem("mm_session_email");
+  },
 
+  getSession() {
+    return localStorage.getItem("mm_session_email");
+  },
 
-// auth
-register(email, password) {
-const users = readJSON(USERS_KEY, {})
-if (users[email]) throw new Error('User exists')
-users[email] = { password }
-writeJSON(USERS_KEY, users)
-localStorage.setItem(SESSION_KEY, email)
-return { email }
-},
-login(email, password) {
-const users = readJSON(USERS_KEY, {})
-const u = users[email]
-if (!u) throw new Error('No user found')
-if (u.password !== password) throw new Error('Invalid password')
-localStorage.setItem(SESSION_KEY, email)
-return { email }
-},
+  saveProfile(email, profile) {
+    const profiles = JSON.parse(localStorage.getItem(PROFILES_KEY) || "{}");
+    profiles[email] = profile;
+    localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
+  },
 
+  getProfile(email) {
+    const profiles = JSON.parse(localStorage.getItem(PROFILES_KEY) || "{}");
+    return profiles[email] || null;
+  },
+};
 
-// profile
-getProfile(email) {
-const profiles = readJSON(PROFILES_KEY, {})
-return profiles[email] || null
-},
-saveProfile(email, profile) {
-const profiles = readJSON(PROFILES_KEY, {})
-profiles[email] = { ...profile, email }
-writeJSON(PROFILES_KEY, profiles)
-return profiles[email]
-}
-}
+export default storageApi;
